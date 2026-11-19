@@ -33,7 +33,7 @@ export function resolveTemplate(dvr) {
   return BRAND_TEMPLATES[brand] || INTELBRAS_TEMPLATE;
 }
 
-export function buildRtspUrl(dvr, channel) {
+export function buildRtspUrl(dvr, channel, subtype = dvr.subtype) {
   const template = resolveTemplate(dvr);
   const values = {
     username: encodeURIComponent(dvr.username),
@@ -42,7 +42,7 @@ export function buildRtspUrl(dvr, channel) {
     rtspPort: String(dvr.rtspPort),
     port: String(dvr.rtspPort),
     channel: String(channel),
-    subtype: String(dvr.subtype),
+    subtype: String(subtype),
   };
   return template.replace(/\{(username|password|host|rtspPort|port|channel|subtype)\}/g, (_, key) => values[key]);
 }
@@ -51,6 +51,28 @@ export function streamName(dvrId, channel) {
   return `${dvrId}_ch${channel}`;
 }
 
+export function mainStreamName(dvrId, channel) {
+  return `${dvrId}_ch${channel}_main`;
+}
+
+/**
+ * Cada canal tem dois streams no go2rtc:
+ *  - `<id>_chN`      substream (subtype do DVR, padrao 1): leve, para grade
+ *  - `<id>_chN_main` stream principal (subtype 0): qualidade cheia
+ * Se o DVR ja estiver com subtype 0, so existe o primeiro.
+ */
+export function streamVariants(dvr, channel) {
+  const list = [{ name: streamName(dvr.id, channel), channel, subtype: dvr.subtype, kind: "sub" }];
+  if (Number(dvr.subtype) !== 0) {
+    list.push({ name: mainStreamName(dvr.id, channel), channel, subtype: 0, kind: "main" });
+  }
+  return list;
+}
+
+export function allStreamVariants(dvr) {
+  return dvr.channels.flatMap((channel) => streamVariants(dvr, channel));
+}
+
 export function streamNamesFor(dvr) {
-  return dvr.channels.map((channel) => streamName(dvr.id, channel));
+  return allStreamVariants(dvr).map((item) => item.name);
 }

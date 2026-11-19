@@ -1,5 +1,5 @@
 import { config } from "./config.js";
-import { buildRtspUrl, streamName, streamNamesFor } from "./rtsp.js";
+import { buildRtspUrl, allStreamVariants, streamNamesFor } from "./rtsp.js";
 
 const TIMEOUT_MS = 8000;
 
@@ -96,9 +96,8 @@ export async function deleteStream(name) {
 
 export async function recreateDvrStreams(dvr) {
   const results = [];
-  for (const channel of dvr.channels) {
-    const name = streamName(dvr.id, channel);
-    const src = buildRtspUrl(dvr, channel);
+  for (const { name, channel, subtype } of allStreamVariants(dvr)) {
+    const src = buildRtspUrl(dvr, channel, subtype);
     try {
       await deleteStream(name);
       await putStream(name, src);
@@ -154,9 +153,8 @@ export async function ensureAllStreams(dvrs) {
   const expected = new Set();
 
   for (const dvr of dvrs) {
-    for (const channel of dvr.channels) {
-      const name = streamName(dvr.id, channel);
-      const src = buildRtspUrl(dvr, channel);
+    for (const { name, channel, subtype } of allStreamVariants(dvr)) {
+      const src = buildRtspUrl(dvr, channel, subtype);
       expected.add(name);
       const current = existing[name];
       const sources = Array.isArray(current)
