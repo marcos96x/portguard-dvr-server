@@ -18,6 +18,7 @@ api:
   listen: ":1984"
   username: "admin_api"
   password: "TROQUE_ESTA_SENHA"
+  origin: "*"  # libera o WebSocket do player atras do proxy
   # Alternativa: restringir o painel web a um domínio do seu app
   # origin: "https://app.seu-dominio.com"
 
