@@ -30,7 +30,7 @@ webrtc:
 
 rtsp:
   # A porta RTSP do próprio go2rtc (opcional). Não é a porta 554 do DVR.
-  listen: ""
+  listen: "127.0.0.1:8554"  # local; necessario para o transcode H.265 para H.264
 
 log:
   level: info
