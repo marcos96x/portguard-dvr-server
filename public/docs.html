@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Documentação — portguard-dvr-server</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --bg-elev: #171e27;
+      --bg-code: #0b1015;
+      --border: #2a3542;
+      --text: #e7eef6;
+      --muted: #9aa8b8;
+      --accent: #3dbea0;
+      --accent-dim: #1e3d36;
+      --warn-bg: #2a2214;
+      --warn-border: #8a6a2a;
+      --warn-text: #f3d59a;
+      --danger: #f07178;
+      --method-get: #5ec8e8;
+      --method-post: #3dbea0;
+      --method-put: #e0b04a;
+      --method-delete: #f07178;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, kbd, pre {
+      font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+      font-size: 0.86em;
+    }
+    code {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 0.1em 0.4em;
+    }
+    pre {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      line-height: 1.45;
+    }
+    pre code {
+      background: none;
+      border: 0;
+      padding: 0;
+      font-size: 0.95em;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 100vh;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      background: var(--bg-elev);
+      border-right: 1px solid var(--border);
+      padding: 24px 18px;
+    }
+    nav .brand {
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    nav .brand span { color: var(--accent); }
+    nav .sub {
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-bottom: 22px;
+    }
+    nav a {
+      display: block;
+      color: var(--muted);
+      padding: 6px 0;
+      font-size: 0.9rem;
+    }
+    nav a:hover { color: var(--text); text-decoration: none; }
+    main { padding: 40px 48px 80px; max-width: 920px; }
+    h1 { font-size: 2rem; letter-spacing: -0.03em; margin: 0 0 8px; }
+    h2 {
+      font-size: 1.35rem;
+      margin: 48px 0 12px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    h2:first-of-type { border-top: 0; margin-top: 28px; }
+    h3 { font-size: 1.05rem; margin: 28px 0 8px; }
+    p, li { color: #d5dee8; }
+    .lead { font-size: 1.05rem; color: var(--muted); margin-top: 0; }
+    .callout {
+      background: var(--accent-dim);
+      border: 1px solid #2f6f5e;
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin: 16px 0 20px;
+    }
+    .callout.warn {
+      background: var(--warn-bg);
+      border-color: var(--warn-border);
+    }
+    .callout.warn, .callout.warn p, .callout.warn li { color: var(--warn-text); }
+    .callout p:first-child, .callout.warn p:first-child { margin-top: 0; }
+    .callout p:last-child { margin-bottom: 0; }
+    .route {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px 8px;
+      margin: 16px 0 24px;
+    }
+    .route-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .method {
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid currentColor;
+    }
+    .method.get { color: var(--method-get); }
+    .method.post { color: var(--method-post); }
+    .method.put { color: var(--method-put); }
+    .method.delete { color: var(--method-delete); }
+    .path { font-family: ui-monospace, Consolas, monospace; font-weight: 600; }
+    .badge {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px 8px;
+    }
+    .badge.public { color: var(--accent); border-color: #2f6f5e; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px;
+      font-size: 0.92rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; font-size: 0.8rem; }
+    footer {
+      margin-top: 56px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      nav { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+      nav .toc { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+      main { padding: 28px 20px 64px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <div class="brand">portguard<span>-dvr-server</span></div>
+      <div class="sub">Documentação da API</div>
+      <div class="toc">
+        <a href="#introducao">Introdução</a>
+        <a href="#autenticacao">Autenticação</a>
+        <a href="#rotas">Rotas</a>
+        <a href="#health">GET /health</a>
+        <a href="#docs">GET /docs</a>
+        <a href="#listar">GET /api/dvrs</a>
+        <a href="#obter">GET /api/dvrs/:id</a>
+        <a href="#criar">POST /api/dvrs</a>
+        <a href="#atualizar">PUT /api/dvrs/:id</a>
+        <a href="#remover">DELETE /api/dvrs/:id</a>
+        <a href="#sync">POST /api/sync</a>
+        <a href="#webapp">Incorporar no webapp</a>
+        <a href="#persistencia">Persistência e sync</a>
+        <a href="#erros">Erros</a>
+      </div>
+    </nav>
+    <main>
+      <h1>Documentação de uso</h1>
+      <p class="lead">
+        API para cadastrar DVRs de forma dinâmica no go2rtc e devolver,
+        para cada câmera, as URLs prontas que o webapp (HTML, CSS e JS)
+        usa para exibir o vídeo.
+      </p>
+
+      <h2 id="introducao">Introdução</h2>
+      <p>
+        O navegador <strong>não toca RTSP</strong>. Este serviço roda numa VM Linux
+        na nuvem, puxa o RTSP de cada DVR (porta 554) e entrega WebRTC, MSE, HLS
+        ou um JPEG para o aplicativo.
+      </p>
+      <p>
+        Um único servidor atende vários DVRs. Cada câmera vira um stream com o
+        nome <code>&lt;id-do-dvr&gt;_ch&lt;N&gt;</code>. As senhas dos DVRs
+        <strong>nunca</strong> voltam nas respostas: o campo
+        <code>password</code> aparece como <code>********</code>.
+      </p>
+      <p>
+        As rotas públicas desta API são <code>GET /docs</code> e
+        <code>GET /health</code>. Todas as rotas em <code>/api/*</code>
+        exigem o token de autenticação.
+      </p>
+
+      <h2 id="autenticacao">Autenticação</h2>
+      <div class="callout">
+        <p>
+          O token fica no arquivo <code>.env</code>, na variável
+          <code>API_KEY</code>. Envie esse valor no header HTTP
+          <code>X-API-Key</code> em todas as requisições para <code>/api/*</code>.
+        </p>
+      </div>
+      <p>
+        Sem o header, ou com um token diferente do que está no
+        <code>.env</code>, a API responde <code>401</code> com a mensagem
+        de chave inválida ou ausente.
+      </p>
+
+      <h3>Exemplo com curl</h3>
+      <pre><code>curl -sS http://127.0.0.1:3000/api/dvrs \
+  -H "X-API-Key: SEU_TOKEN"</code></pre>
+      <p>
+        Troque <code>SEU_TOKEN</code> pelo valor de <code>API_KEY</code>
+        definido no <code>.env</code> do servidor. Não compartilhe esse
+        valor em repositórios nem no código do webapp que roda no navegador
+        do cliente final — a API de gestão deve ser chamada pelo seu backend.
+      </p>
+
+      <h3>Exemplo com JavaScript (fetch)</h3>
+      <pre><code>const resposta = await fetch("http://127.0.0.1:3000/api/dvrs", {
+  headers: {
+    "X-API-Key": "SEU_TOKEN",
+    "Content-Type": "application/json"
+  }
+});
+const dados = await resposta.json();</code></pre>
+      <p>
+        Para <code>POST</code> e <code>PUT</code>, mantenha o mesmo header
+        <code>X-API-Key</code> e envie o JSON no corpo da requisição.
+      </p>
+
+      <h2 id="rotas">Rotas</h2>
+      <p>Base padrão da API: <code>http://127.0.0.1:3000</code> (variável <code>PORT</code> no <code>.env</code>).</p>
+
+      <div class="route" id="health">
+        <div class="route-head">
+          <span class="method get">GET</span>
+          <span class="path">/health</span>
+          <span class="badge public">Pública</span>
+        </div>
+        <p>
+          Saúde da API e alcance do go2rtc. Não exige token e não devolve senhas.
+          Retorna <code>200</code> se o go2rtc estiver acessível e autenticado,
+          ou <code>503</code> caso contrário.
+        </p>
+        <pre><code>curl -sS http://127.0.0.1:3000/health</code></pre>
+        <pre><code>{
+  "ok": true,
+  "service": "portguard-dvr-server",
+  "time": "2026-11-18T12:00:00.000Z",
+  "go2rtc": { "reachable": true, "status": 200, "authorized": true }
+}</code></pre>
+      </div>
+
+      <div class="route" id="docs">
+        <div class="route-head">
+          <span class="method get">GET</span>
+          <span class="path">/docs</span>
+          <span class="badge public">Pública</span>
+        </div>
+        <p>Esta página de documentação (HTML). Não exige token.</p>
+        <pre><code>curl -sS http://127.0.0.1:3000/docs</code></pre>
+      </div>
+
+      <div class="route" id="listar">
+        <div class="route-head">
+          <span class="method get">GET</span>
+          <span class="path">/api/dvrs</span>
+          <span class="badge">X-API-Key</span>
+        </div>
+        <p>Lista todos os DVRs cadastrados, com as URLs de cada câmera. Senhas mascaradas.</p>
+        <pre><code>curl -sS http://127.0.0.1:3000/api/dvrs \
+  -H "X-API-Key: SEU_TOKEN"</code></pre>
+        <pre><code>{ "dvrs": [ /* objetos no mesmo formato de GET /api/dvrs/:id */ ] }</code></pre>
+      </div>
+
+      <div class="route" id="obter">
+        <div class="route-head">
+          <span class="method get">GET</span>
+          <span class="path">/api/dvrs/:id</span>
+          <span class="badge">X-API-Key</span>
+        </div>
+        <p>Devolve um DVR específico. Responde <code>404</code> se o id não existir.</p>
+        <pre><code>curl -sS http://127.0.0.1:3000/api/dvrs/loja-centro-a1b2c3 \
+  -H "X-API-Key: SEU_TOKEN"</code></pre>
+      </div>
+
+      <div class="route" id="criar">
+        <div class="route-head">
+          <span class="method post">POST</span>
+          <span class="path">/api/dvrs</span>
+          <span class="badge">X-API-Key</span>
+        </div>
+        <p>
+          Cadastra um DVR, cria os streams correspondentes no go2rtc e
+          devolve as URLs prontas para o webapp. O <code>id</code> é gerado
+          automaticamente a partir do nome.
+        </p>
+        <p>
+          O campo <code>channels</code> aceita a quantidade
+          (<code>4</code> gera as câmeras 1 a 4) ou uma lista
+          (<code>[1, 3, 5]</code>). O padrão de URL é Intelbras:
+        </p>
+        <pre><code>rtsp://usuario:senha@host:porta/cam/realmonitor?channel=N&amp;subtype=S</code></pre>
+        <p>
+          <code>subtype</code> padrão: <code>1</code> (substream, mais leve
+          para web/celular). Use <code>0</code> para o stream principal.
+          Para outro fabricante, envie <code>rtspTemplate</code> com os
+          placeholders <code>{username}</code>, <code>{password}</code>,
+          <code>{host}</code>, <code>{rtspPort}</code>, <code>{channel}</code>
+          e <code>{subtype}</code>.
+        </p>
+        <table>
+          <thead>
+            <tr><th>Campo</th><th>Obrigatório</th><th>Descrição</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>sim</td><td>Nome amigável do DVR (usado para gerar o id)</td></tr>
+            <tr><td><code>host</code></td><td>sim</td><td>DDNS ou IP público do DVR</td></tr>
+            <tr><td><code>username</code></td><td>sim</td><td>Usuário do DVR (prefira um só de visualização)</td></tr>
+            <tr><td><code>password</code></td><td>sim</td><td>Senha do DVR (não volta na resposta)</td></tr>
+            <tr><td><code>channels</code></td><td>sim</td><td>Quantidade ou array de canais</td></tr>
+            <tr><td><code>rtspPort</code></td><td>não</td><td>Padrão: 554</td></tr>
+            <tr><td><code>subtype</code></td><td>não</td><td>Padrão: 1</td></tr>
+            <tr><td><code>brand</code></td><td>não</td><td>Padrão: intelbras</td></tr>
+            <tr><td><code>rtspTemplate</code></td><td>não</td><td>Template RTSP customizado</td></tr>
+          </tbody>
+        </table>
+        <pre><code>curl -sS -X POST http://127.0.0.1:3000/api/dvrs \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: SEU_TOKEN" \
+  -d '{
+    "name": "Loja Centro",
+    "host": "loja-centro.ddns-intelbras.com.br",
+    "rtspPort": 554,
+    "username": "visualizador",
+    "password": "senha-do-dvr",
+    "channels": 2,
+    "subtype": 1,
+    "brand": "intelbras"
+  }'</code></pre>
+        <p>Resposta <code>201</code> (exemplo; o <code>id</code> é gerado automaticamente):</p>
+        <pre><code>{
+  "id": "loja-centro-a1b2c3",
+  "name": "Loja Centro",
+  "host": "loja-centro.ddns-intelbras.com.br",
+  "rtspPort": 554,
+  "username": "visualizador",
+  "password": "********",
+  "channels": [1, 2],
+  "subtype": 1,
+  "brand": "intelbras",
+  "rtspTemplate": null,
+  "createdAt": "2026-11-18T12:00:00.000Z",
+  "updatedAt": "2026-11-18T12:00:00.000Z",
+  "cameras": [
+    {
+      "channel": 1,
+      "streamName": "loja-centro-a1b2c3_ch1",
+      "urls": {
+        "iframe": "http://127.0.0.1:1984/stream.html?src=loja-centro-a1b2c3_ch1",
+        "webrtc": "http://127.0.0.1:1984/api/webrtc?src=loja-centro-a1b2c3_ch1",
+        "webrtcPlayer": "http://127.0.0.1:1984/webrtc.html?src=loja-centro-a1b2c3_ch1",
+        "mse": "ws://127.0.0.1:1984/api/ws?src=loja-centro-a1b2c3_ch1",
+        "hls": "http://127.0.0.1:1984/api/stream.m3u8?src=loja-centro-a1b2c3_ch1",
+        "snapshot": "http://127.0.0.1:1984/api/frame.jpeg?src=loja-centro-a1b2c3_ch1",
+        "mjpeg": "http://127.0.0.1:1984/api/stream.mjpeg?src=loja-centro-a1b2c3_ch1"
+      }
+    }
+  ],
+  "go2rtc": { "synced": true, "created": 2, "failed": 0, "errors": [] }
+}</code></pre>
+      </div>
+
+      <div class="route" id="atualizar">
+        <div class="route-head">
+          <span class="method put">PUT</span>
+          <span class="path">/api/dvrs/:id</span>
+          <span class="badge">X-API-Key</span>
+        </div>
+        <p>
+          Atualiza um DVR já cadastrado e recria os streams no go2rtc.
+          Envie só os campos que deseja alterar. Para manter a senha atual,
+          omita <code>password</code> ou envie <code>********</code>.
+        </p>
+        <pre><code>curl -sS -X PUT http://127.0.0.1:3000/api/dvrs/loja-centro-a1b2c3 \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: SEU_TOKEN" \
+  -d '{"channels":[1,2,3],"subtype":1}'</code></pre>
+      </div>
+
+      <div class="route" id="remover">
+        <div class="route-head">
+          <span class="method delete">DELETE</span>
+          <span class="path">/api/dvrs/:id</span>
+          <span class="badge">X-API-Key</span>
+        </div>
+        <p>Remove o DVR da persistência e apaga os streams correspondentes no go2rtc.</p>
+        <pre><code>curl -sS -X DELETE http://127.0.0.1:3000/api/dvrs/loja-centro-a1b2c3 \
+  -H "X-API-Key: SEU_TOKEN"</code></pre>
+        <pre><code>{
+  "ok": true,
+  "id": "loja-centro-a1b2c3",
+  "go2rtc": { "synced": true, "created": 2, "failed": 0, "errors": [] }
+}</code></pre>
+      </div>
+
+      <div class="route" id="sync">
+        <div class="route-head">
+          <span class="method post">POST</span>
+          <span class="path">/api/sync</span>
+          <span class="badge">X-API-Key</span>
+        </div>
+        <p>
+          Recria no go2rtc todos os streams salvos. Útil depois de reiniciar
+          só o go2rtc, porque ele esquece os streams que estavam só na memória.
+          A API também faz isso automaticamente na subida e a cada intervalo
+          (<code>SYNC_INTERVAL_MS</code>, padrão 30 segundos).
+        </p>
+        <pre><code>curl -sS -X POST http://127.0.0.1:3000/api/sync \
+  -H "X-API-Key: SEU_TOKEN"</code></pre>
+        <pre><code>{
+  "ok": true,
+  "dvrCount": 1,
+  "go2rtc": { "synced": true, "created": 2, "failed": 0, "errors": [], "mode": "ensure", "expected": 2 }
+}</code></pre>
+      </div>
+
+      <h2 id="webapp">Incorporar no webapp</h2>
+      <p>
+        Depois de cadastrar o DVR com <code>POST /api/dvrs</code>, use o array
+        <code>cameras[].urls</code> no seu HTML. O caminho mais simples é um
+        <code>iframe</code> apontando para <code>urls.iframe</code>
+        (página <code>stream.html</code> do go2rtc):
+      </p>
+      <pre><code>&lt;iframe
+  src="http://SEU_SERVIDOR:1984/stream.html?src=loja-centro-a1b2c3_ch1"
+  allow="autoplay; fullscreen"
+  title="Câmera 1"
+&gt;&lt;/iframe&gt;</code></pre>
+      <p>No JavaScript, depois da resposta da API:</p>
+      <pre><code>const cam = dvr.cameras[0];
+document.getElementById("player").src = cam.urls.iframe;</code></pre>
+      <p>As demais URLs, conforme a necessidade do player:</p>
+      <table>
+        <thead>
+          <tr><th>Campo</th><th>Uso</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>urls.iframe</code></td><td>Player pronto em <code>stream.html</code> (mais simples)</td></tr>
+          <tr><td><code>urls.webrtc</code> / <code>urls.webrtcPlayer</code></td><td>WebRTC (menor atraso)</td></tr>
+          <tr><td><code>urls.mse</code></td><td>WebSocket MSE (player próprio, ex. video-rtc.js)</td></tr>
+          <tr><td><code>urls.hls</code></td><td>HLS (<code>stream.m3u8</code>)</td></tr>
+          <tr><td><code>urls.snapshot</code></td><td>JPEG atual (<code>frame.jpeg</code>)</td></tr>
+          <tr><td><code>urls.mjpeg</code></td><td>Fluxo Motion JPEG</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Há um exemplo pronto em <code>examples/player.html</code>.
+        Em produção, aponte <code>PUBLIC_GO2RTC_URL</code> no <code>.env</code>
+        para o endereço HTTPS que o navegador do usuário alcança
+        (e não para o <code>127.0.0.1</code> da VM).
+      </p>
+      <div class="callout warn">
+        <p>
+          Não coloque o <code>API_KEY</code> no JavaScript do webapp público.
+          O cadastro de DVRs deve passar pelo seu backend. O navegador do
+          cliente final só precisa das URLs de reprodução devolvidas em
+          <code>cameras[].urls</code>.
+        </p>
+      </div>
+
+      <h2 id="persistencia">Persistência e sync</h2>
+      <p>
+        Os streams criados pela API do go2rtc ficam só na memória e somem
+        se ele reiniciar. Por isso esta API grava os DVRs em
+        <code>data/dvrs.json</code> e recria tudo na subida e a cada
+        <code>SYNC_INTERVAL_MS</code>. Você também pode chamar
+        <code>POST /api/sync</code> manualmente.
+      </p>
+
+      <h2 id="erros">Erros comuns</h2>
+      <table>
+        <thead>
+          <tr><th>HTTP</th><th>Quando acontece</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>401</code></td><td>Header <code>X-API-Key</code> ausente ou diferente do <code>API_KEY</code> do <code>.env</code></td></tr>
+          <tr><td><code>400</code></td><td>Corpo inválido (campos faltando, id inválido, etc.)</td></tr>
+          <tr><td><code>404</code></td><td>DVR ou rota não encontrados</td></tr>
+          <tr><td><code>503</code></td><td><code>GET /health</code> quando o go2rtc está inacessível ou a senha não confere</td></tr>
+          <tr><td><code>500</code></td><td>Erro interno (veja os logs do serviço)</td></tr>
+        </tbody>
+      </table>
+
+      <footer>
+        portguard-dvr-server — documentação local, sem dependências externas.
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

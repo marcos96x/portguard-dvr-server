@@ -1,0 +1,20 @@
+[Unit]
+Description=Portguard DVR Server (API de gestão do go2rtc)
+After=network-online.target go2rtc.service
+Wants=network-online.target
+Requires=go2rtc.service
+
+[Service]
+Type=simple
+User=portguard
+Group=portguard
+WorkingDirectory=/opt/portguard-dvr-server
+EnvironmentFile=/opt/portguard-dvr-server/.env
+ExecStart=/usr/bin/node src/server.js
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

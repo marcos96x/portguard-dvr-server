@@ -1,0 +1,20 @@
+{
+  "name": "portguard-dvr-server",
+  "version": "1.0.0",
+  "description": "API de gestão dinâmica de DVRs para o go2rtc — cadastra câmeras e devolve URLs prontas para o webapp.",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": ["go2rtc", "dvr", "rtsp", "webrtc", "intelbras"],
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,15 @@
+# Exemplo Caddy com HTTPS automático.
+# A porta 8555 (TCP e UDP) do go2rtc continua precisa ficar aberta no host.
+
+api-cameras.seu-dominio.com {
+    reverse_proxy 127.0.0.1:3000
+}
+
+cameras.seu-dominio.com {
+    reverse_proxy 127.0.0.1:1984 {
+        flush_interval -1
+        transport http {
+            read_timeout 3600s
+        }
+    }
+}

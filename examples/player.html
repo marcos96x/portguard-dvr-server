@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portguard — exemplo de player</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #111;
+      color: #eee;
+    }
+    header { padding: 16px 20px 8px; }
+    h1 { font-size: 1.15rem; margin: 0 0 8px; }
+    p, label { color: #bbb; font-size: 0.9rem; }
+    input {
+      width: min(720px, 100%);
+      padding: 8px 10px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    .grid {
+      display: grid;
+      gap: 16px;
+      padding: 12px 20px 24px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .card h2 {
+      font-size: 0.85rem;
+      margin: 0;
+      padding: 8px 12px;
+      background: #222;
+    }
+    iframe, video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      background: #000;
+      display: block;
+    }
+    code { color: #9cdcfe; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Exemplo de exibição no webapp</h1>
+    <p>
+      O navegador não toca RTSP. Use as URLs devolvidas pela API
+      (<code>cameras[].urls</code>). O jeito mais simples é um
+      <code>iframe</code> apontando para <code>urls.iframe</code>.
+    </p>
+    <label>
+      URL do player (cole o campo <code>urls.iframe</code>):
+      <br />
+      <input id="src" type="url" placeholder="http://SEU_SERVIDOR:1984/stream.html?src=meu-dvr_ch1" />
+    </label>
+  </header>
+  <div class="grid">
+    <div class="card">
+      <h2>iframe (mais simples)</h2>
+      <iframe id="frame" title="Câmera" allow="autoplay; fullscreen"></iframe>
+    </div>
+  </div>
+  <header>
+    <p>
+      No seu app, depois de cadastrar o DVR com <code>POST /api/dvrs</code>,
+      basta fazer:
+    </p>
+    <p>
+      <code>&lt;iframe src="CAMERAS[0].urls.iframe" allow="autoplay; fullscreen"&gt;&lt;/iframe&gt;</code>
+    </p>
+  </header>
+  <script>
+    const input = document.getElementById("src");
+    const frame = document.getElementById("frame");
+    const fromQuery = new URLSearchParams(location.search).get("src");
+    if (fromQuery) input.value = fromQuery;
+    const apply = () => { if (input.value) frame.src = input.value; };
+    input.addEventListener("change", apply);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") apply(); });
+    apply();
+  </script>
+</body>
+</html>

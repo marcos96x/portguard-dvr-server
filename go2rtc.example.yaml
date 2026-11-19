@@ -1,0 +1,36 @@
+# Configuração base do go2rtc (sem streams estáticos).
+# Os streams são criados em memória pela API portguard-dvr-server.
+# Copie este arquivo para /etc/go2rtc.yaml (ou mantenha no projeto)
+# e troque o password. Ele deve ser o mesmo de GO2RTC_PASSWORD no .env.
+#
+# Em produção, prefira escutar só em 127.0.0.1:1984 e expor o HTTP
+# pelo Nginx/Caddy com HTTPS. A porta 8555 (TCP e UDP) precisa
+# continuar pública para o WebRTC.
+#
+# O go2rtc 1.9.x tenta gravar no YAML os streams criados pela API
+# (incluindo a URL RTSP com usuário e senha). Deixe este arquivo
+# com permissão 0600. A fonte da verdade continua sendo o
+# data/dvrs.json desta API, que recria tudo se o go2rtc reiniciar.
+# Para impedir a gravação no arquivo, suba o go2rtc com a config
+# como string (-config "{...}") em vez de um arquivo gravável.
+
+api:
+  listen: ":1984"
+  username: "admin_api"
+  password: "TROQUE_ESTA_SENHA"
+  # Alternativa: restringir o painel web a um domínio do seu app
+  # origin: "https://app.seu-dominio.com"
+
+webrtc:
+  listen: ":8555"
+  # candidates:
+  #   - 203.0.113.10:8555
+  #   - stun:8555
+
+rtsp:
+  # A porta RTSP do próprio go2rtc (opcional). Não é a porta 554 do DVR.
+  listen: ""
+
+log:
+  level: info
+streams:
