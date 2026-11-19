@@ -64,9 +64,17 @@ export function mainStreamName(dvrId, channel) {
 export function streamVariants(dvr, channel) {
   const list = [{ name: streamName(dvr.id, channel), channel, subtype: dvr.subtype, kind: "sub" }];
   if (Number(dvr.subtype) !== 0) {
-    list.push({ name: mainStreamName(dvr.id, channel), channel, subtype: 0, kind: "main" });
+    // O principal dos DVRs Intelbras costuma vir em H.265, que o Chrome nao toca
+    // via WebRTC. Por padrao o go2rtc converte para H.264 (so enquanto alguem assiste).
+    const transcode = (process.env.MAIN_TRANSCODE_H264 ?? "1") !== "0";
+    list.push({ name: mainStreamName(dvr.id, channel), channel, subtype: 0, kind: "main", transcode });
   }
   return list;
+}
+
+export function variantSource(dvr, variant) {
+  const url = buildRtspUrl(dvr, variant.channel, variant.subtype);
+  return variant.transcode ? `ffmpeg:${url}#video=h264` : url;
 }
 
 export function allStreamVariants(dvr) {
