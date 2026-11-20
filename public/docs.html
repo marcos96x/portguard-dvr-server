@@ -197,6 +197,7 @@
         <a href="#atualizar">PUT /api/dvrs/:id</a>
         <a href="#remover">DELETE /api/dvrs/:id</a>
         <a href="#sync">POST /api/sync</a>
+        <a href="#clip">GET /api/clip</a>
         <a href="#webapp">Incorporar no webapp</a>
         <a href="#persistencia">Persistência e sync</a>
         <a href="#erros">Erros</a>
@@ -462,6 +463,40 @@ const dados = await resposta.json();</code></pre>
 }</code></pre>
       </div>
 
+
+      <div class="route" id="clip">
+        <div class="route-head">
+          <span class="method get">GET</span>
+          <span class="path">/api/clip</span>
+          <span class="badge">X-API-Key</span>
+        </div>
+        <p>
+          Devolve um vídeo MP4 (H.264) com os últimos <code>seconds</code>
+          da câmera, lidos da gravação do DVR (RTSP Intelbras
+          <code>/cam/playback</code>). O parâmetro <code>src</code> é o
+          <code>streamName</code> ou <code>streamNameMain</code>.
+          <code>seconds</code> é opcional (padrão 15, mínimo 5, máximo 30).
+        </p>
+        <pre><code>curl -sS -H "X-API-Key: SEU_TOKEN" \
+  -o clip.mp4 \
+  "http://127.0.0.1:3000/api/clip?src=loja-centro-a1b2c3_ch1&amp;seconds=15"</code></pre>
+        <p>
+          O intervalo usa o relógio do DVR (header HTTP <code>Date</code>
+          da porta 8001, tratado como America/Sao_Paulo). Se uma janela
+          falhar com 4xx, a API tenta recuos de 2s, 15s, 30s e 60s.
+          Neste firmware o playback não aceita <code>subtype</code> e
+          vem em H.265 1280×720; a API converte para H.264 para o
+          navegador conseguir tocar. No máximo 2 clipes ao mesmo tempo.
+        </p>
+        <div class="callout warn">
+          <p>
+            Não chame esta rota direto do JavaScript público: ela exige
+            a <code>API_KEY</code>. O webapp deve pedir o clipe ao
+            backend do Portguard, que então chama esta API.
+          </p>
+        </div>
+      </div>
+
       <h2 id="webapp">Incorporar no webapp</h2>
       <p>
         Depois de cadastrar o DVR com <code>POST /api/dvrs</code>, use o array
@@ -523,8 +558,11 @@ document.getElementById("player").src = cam.urls.iframe;</code></pre>
         <tbody>
           <tr><td><code>401</code></td><td>Header <code>X-API-Key</code> ausente ou diferente do <code>API_KEY</code> do <code>.env</code></td></tr>
           <tr><td><code>400</code></td><td>Corpo inválido (campos faltando, id inválido, etc.)</td></tr>
-          <tr><td><code>404</code></td><td>DVR ou rota não encontrados</td></tr>
+          <tr><td><code>404</code></td><td>DVR, câmera (<code>src</code>) ou rota não encontrados</td></tr>
+          <tr><td><code>409</code></td><td><code>GET /api/clip</code> quando o DVR não devolveu gravação na janela pedida</td></tr>
+          <tr><td><code>429</code></td><td>Já há 2 clipes sendo gerados</td></tr>
           <tr><td><code>503</code></td><td><code>GET /health</code> quando o go2rtc está inacessível ou a senha não confere</td></tr>
+          <tr><td><code>504</code></td><td>Timeout ao gerar o clipe (transcode / relógio do DVR)</td></tr>
           <tr><td><code>500</code></td><td>Erro interno (veja os logs do serviço)</td></tr>
         </tbody>
       </table>

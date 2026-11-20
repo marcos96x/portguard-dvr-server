@@ -11,6 +11,7 @@ import {
 } from "./go2rtc.js";
 import { publicDvr } from "./urls.js";
 import { isValidId, makeId, parseDvrInput } from "./validate.js";
+import { handleClip } from "./clip.js";
 
 export const app = express();
 app.disable("x-powered-by");
@@ -149,6 +150,8 @@ app.post("/api/sync", async (_req, res, next) => {
     next(err);
   }
 });
+
+app.get("/api/clip", handleClip);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Rota não encontrada", path: req.path });

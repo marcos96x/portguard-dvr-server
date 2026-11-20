@@ -162,6 +162,21 @@ No webapp, o caminho mais simples é:
 
 Veja também `examples/player.html`.
 
+
+### `GET /api/clip` — últimos N segundos (playback do DVR)
+
+Devolve um MP4 (H.264) com os últimos `seconds` da câmera, lidos da gravação do DVR Intelbras via RTSP `/cam/playback`. Padrão 15 segundos (mínimo 5, máximo 30). Exige `X-API-Key`.
+
+```bash
+curl -sS -H "X-API-Key: SUA_API_KEY" \
+  -o clip.mp4 \
+  "http://127.0.0.1:3000/api/clip?src=loja-centro-a1b2c3_ch1&seconds=15"
+```
+
+`src` é o `streamName` ou `streamNameMain` da câmera. O intervalo usa o relógio do DVR (o header HTTP `Date` da porta 8001, interpretado em America/Sao_Paulo). A rota tenta alguns recuos (2s, 15s, 30s, 60s) se o DVR responder 4xx. Neste firmware o playback não aceita `subtype` e vem em H.265 1280×720; a API transcodifica para H.264 para o navegador. No máximo 2 clipes ao mesmo tempo (HTTP 429). Chame pelo backend, não coloque a `API_KEY` no JavaScript público.
+
+Erros: `400` src/seconds inválidos, `404` câmera não cadastrada, `409` sem gravação na janela, `429` ocupado, `504` timeout (o transcode roda quase em tempo real; no Nginx use `proxy_read_timeout` de pelo menos 120s em `/api/clip`).
+
 ### Outras rotas
 
 ```bash
@@ -183,6 +198,9 @@ curl -sS -X DELETE http://127.0.0.1:3000/api/dvrs/loja-centro-a1b2c3 \
 
 # Recriar todos os streams salvos (útil depois de reiniciar só o go2rtc)
 curl -sS -X POST http://127.0.0.1:3000/api/sync -H "X-API-Key: SUA_API_KEY"
+
+# Clipe dos últimos 15s (MP4 H.264, gravado pelo DVR)
+curl -sS -H "X-API-Key: SUA_API_KEY" -o clip.mp4 "http://127.0.0.1:3000/api/clip?src=loja-centro-a1b2c3_ch1&seconds=15"
 
 # Documentação HTML (sem API key)
 curl -sS -o /dev/null -w "%{http_code} %{content_type}\n" http://127.0.0.1:3000/docs
